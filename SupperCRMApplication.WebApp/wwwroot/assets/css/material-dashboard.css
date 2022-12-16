@@ -7793,6 +7793,10 @@ fieldset:disabled .btn {
     border-bottom: var(--bs-offcanvas-border-width) solid var(--bs-offcanvas-border-color);
     transform: translateY(-100%);
   }
+    canvas {
+        overflow-clip-margin: content-box;
+        overflow: clip;
+    }
 
   .offcanvas-xxl.offcanvas-bottom {
     right: 0;
