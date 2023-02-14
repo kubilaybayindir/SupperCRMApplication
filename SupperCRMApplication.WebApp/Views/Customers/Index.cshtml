@@ -1,0 +1,544 @@
+﻿@model List<SupperCRMApplication.Entities.Client>
+
+@{
+    ViewData["Title"] = "Müşteriler";
+    ViewData["PageName"] = "customers-index";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                    <h6 class="text-white text-capitalize ps-3">Müşteri Listesi</h6>
+                </div>
+            </div>
+            <div class="card-body px-0 pb-2">
+                <div class="px-3 d-flex justify-content-between">
+                    <div>
+                        <button class="btn btn-icon btn-3 btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#modal-create-client">
+                            <span class="fa fa-plus me-2"></span>
+                            <span>Yeni Müşteri</span>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="input-group input-group-sm input-group-outline @(ViewData["search"] != null ? "is-filled" : "")">
+                            <label class="form-label">Arama</label>
+                            <input id="search" type="text" class="form-control form-control-sm" value="@ViewData["search"]">
+                            @if (ViewData["search"] != null)
+                            {
+                                <span>
+                                    <a asp-action="Index" class="ms-3 text-sm text-danger">Temizle</a>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @if (ViewData["search"] != null)
+                {
+                    <div class="px-5">
+                        <p class="text-sm text-secondary font-weight-bold">
+                            Arama sonucunu görüntülüyorsunuz :   <span class="text-primary"> @ViewData["search"] </span>
+                        </p>
+                    </div>
+                }
+
+
+
+                <div class="table-responsive p-0">
+                    <table class="table align-items-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ad Soyad / Şirket Adı</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ">E-posta</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Bireysel / Kurumsal</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Durumu</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kayıt Tarihi</th>
+                                <th class="text-center text-secondary opacity-7"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model == null || Model.Count == 0)
+                            {
+                                <tr>
+                                    <td class="text-center" colspan="6">
+                                        <span class="text-xs font-weight-bold mb-0">Herhangi bir müşteri verisi bulunamadı.</span>
+                                    </td>
+                                </tr>
+                            }
+
+                            @foreach (var client in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <span class="text-secondary text-xs font-weight-bold"> @client.Name</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="text-secondary text-xs font-weight-bold"> <a href="mailto:@client.Email" target="_blank">@client.Email</a> </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <p class="text-xs font-weight-bold">@(client.IsCorporate ? "Kurumsal" : "Bireysel")</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm bg-gradient-@(client.Locked ? "secondary" : "success")">@(client.Locked ? "Pasif" : "Aktif")</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">@client.CreatedAt</span>
+                                    </td>
+                                    <td class="align-middle text-center me-2">
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-edit-client" onclick="setEditClientModal(@client.Id)" class="text-info font-weight-bold text-xs">
+                                            Düzenle
+                                        </a>
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-details-client" onclick="setDetailsClientModal(@client.Id)" class="text-secondary font-weight-bold text-xs">
+                                            Detay
+                                        </a>
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-delete-client" onclick="setDeleteClientModal(@client.Id)" class="text-danger font-weight-bold text-xs ">
+                                            Sil
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-create-client" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Yeni Müsteri Oluştur</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*                    <p class="text-sm">
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+                    </p>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Ad-Soyad / Şirket Adı</label>
+                    <input id="name" type="text" class="form-control">
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Email</label>
+                    <input id="email" type="text" class="form-control">
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Telefon</label>
+                    <input id="phone" type="tel" class="form-control">
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="iscorporate" class="form-check-input" type="checkbox" >
+                    <label class="custom-control-label" for="customCheck1">Kurumsal</label>
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="islocked" class="form-check-input" type="checkbox" >
+                    <label class="custom-control-label" for="customCheck1">Pasif</label>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="desc" cols="30" rows="2" class="form-control"></textarea>
+                    </div>*@
+
+                    @*  Müşteri Create modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel())"></partial>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-primary" onclick="createClient()">Kaydet</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-edit-client" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Müsteri Güncelleme</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*                    <p class="text-sm">
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+                    </p>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Ad-Soyad / Şirket Adı</label>
+                    <input id="name" type="text" class="form-control">
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Email</label>
+                    <input id="email" type="text" class="form-control">
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Telefon</label>
+                    <input id="phone" type="tel" class="form-control">
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="iscorporate" class="form-check-input" type="checkbox" >
+                    <label class="custom-control-label" for="customCheck1">Kurumsal</label>
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="islocked" class="form-check-input" type="checkbox" >
+                    <label class="custom-control-label" for="customCheck1">Pasif</label>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="desc" cols="30" rows="2" class="form-control"></textarea>
+                    </div>
+                    <input type="hidden" id = "clientid" value="" />*@
+
+                    @*  Müşteri Edit modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel{HasId=true})"></partial>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-warning" onclick="updateClient()">Güncelle</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-details-client" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Müsteri Detayları</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*                    <p class="text-sm">
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+                    </p>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Ad-Soyad / Şirket Adı</label>
+                    <input id="name" type="text" class="form-control" readonly>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Email</label>
+                    <input id="email" type="text" class="form-control" readonly>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Telefon</label>
+                    <input id="phone" type="tel" class="form-control" readonly>
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="iscorporate" class="form-check-input" type="checkbox" disabled>
+                    <label class="custom-control-label" for="customCheck1">Kurumsal</label>
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="islocked" class="form-check-input" type="checkbox"  disabled>
+                    <label class="custom-control-label" for="customCheck1">Pasif</label>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="desc" cols="30" rows="2" class="form-control" readonly></textarea>
+                    </div>*@
+
+                    @*  Müşteri Detay modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel{IsReadonly=true})"></partial>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-delete-client" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Müsteri Sil</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*                    <p class="text-sm">
+                    Aşağıdaki müşteri kaydını simek istediğinize emin misiniz ?
+                    </p>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Ad-Soyad / Şirket Adı</label>
+                    <input id="name" type="text" class="form-control" readonly>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Email</label>
+                    <input id="email" type="text" class="form-control" readonly>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Telefon</label>
+                    <input id="phone" type="tel" class="form-control" readonly>
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="iscorporate" class="form-check-input" type="checkbox" disabled>
+                    <label class="custom-control-label" for="customCheck1">Kurumsal</label>
+                    </div>
+                    <div class="form-check my-3">
+                    <input id="islocked" class="form-check-input" type="checkbox" disabled>
+                    <label class="custom-control-label" for="customCheck1">Pasif</label>
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="desc" cols="30" rows="2" class="form-control" readonly></textarea>
+                    </div>
+                    <input type="hidden" id="clientid" value=""/>*@
+
+                    @*  Müşteri Delete modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel{IsReadonly=true, HasId=true, Description="Aşağıdaki müşteri kaydını silmek istediğinize emin misiniz ? "})"></partial>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-danger" onclick="deleteClient()">Sil (Geri Alınamaz!)</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function createClient() {
+            var modal_body = $("#modal-create-client .modal-body");
+            var fname = modal_body.find("#name").val();
+            var femail = modal_body.find("#email").val();
+            var fphone = modal_body.find("#phone").val();
+            var fdesc = modal_body.find("#desc").val();
+            var fiscorporate = modal_body.find("#iscorporate").is(":checked");
+            var flocked = modal_body.find("#islocked").is(":checked");
+
+            var data = {
+                "name": fname,
+                "email": femail,
+                "phone": fphone,
+                "description": fdesc,
+                "iscorporate": fiscorporate,
+                "locked": flocked,
+
+            };
+
+            $.ajax({
+                method: "post",
+                url: "/customers/Create",
+                data: data,
+                beforeSend: function () {
+                    modal_body.filter(".is-invalid").removeClass("invalid");
+                }
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Yeni Kayıt");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1200);
+                }
+            });
+        }
+
+        function setEditClientModal(clientid) {
+            $.ajax({
+                method: "get",
+                url: "/Customers/Edit/" + clientid
+            }).done(function (result) {
+
+                if (result != null) {
+                    //değerleri çekeceğimiz modal body inin bilgilerini alıyoruz.
+                    var modal_body = $("#modal-edit-client .modal-body");
+
+                    var inp_name = modal_body.find("#name");
+                    var inp_email = modal_body.find("#email");
+                    var inp_phone = modal_body.find("#phone");
+                    var inp_desc = modal_body.find("#desc");
+                    var inp_iscorporate = modal_body.find("#iscorporate");
+                    var inp_locked = modal_body.find("#islocked");
+                    var inp_clientid = modal_body.find("#clientid");
+
+                    inp_name.val(result.data.name);
+                    inp_email.val(result.data.email);
+                    inp_phone.val(result.data.phone);
+                    inp_desc.val(result.data.description);
+                    inp_iscorporate.prop('checked', result.data.isCorporate);
+                    inp_locked.prop('checked', result.data.locked);
+                    inp_clientid.val(result.data.id);
+
+                    //amaç yazıların üst üstü binmesini engellemek
+                    if (inp_name.val() != null) inp_name.parent().addClass(" is-filled ");
+                    if (inp_email.val() != null) inp_email.parent().addClass(" is-filled ");
+                    if (inp_phone.val() != null) inp_phone.parent().addClass(" is-filled ");
+                    if (inp_desc.val() != null) inp_desc.parent().addClass(" is-filled ");
+                }
+            });
+        }
+
+        function updateClient() {
+            var modal_body = $("#modal-edit-client .modal-body");
+            var fname = modal_body.find("#name").val();
+            var femail = modal_body.find("#email").val();
+            var fphone = modal_body.find("#phone").val();
+            var fdesc = modal_body.find("#desc").val();
+            var fiscorporate = modal_body.find("#iscorporate").is(":checked");
+            var flocked = modal_body.find("#islocked").is(":checked");
+            var fid = modal_body.find("#clientid").val();
+
+            var data = {
+                "name": fname,
+                "email": femail,
+                "phone": fphone,
+                "description": fdesc,
+                "iscorporate": fiscorporate,
+                "locked": flocked
+            };
+
+            $.ajax({
+                method: "post",
+                url: "/Customers/Edit/" + fid,
+                data: data,
+                beforeSend: function () {
+                    modal_body.filter(".is-invalid").removeClass("is-invalid");
+                }
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Güncellendi");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        }
+
+        function setDetailsClientModal(clientid) {
+            $.ajax({
+                method: "get",
+                url: "/Customers/Details/" + clientid
+            }).done(function (result) {
+
+                if (result != null) {
+                    //değerleri çekeceğimiz modal body inin bilgilerini alıyoruz.
+                    var modal_body = $("#modal-details-client .modal-body");
+
+                    var inp_name = modal_body.find("#name");
+                    var inp_email = modal_body.find("#email");
+                    var inp_phone = modal_body.find("#phone");
+                    var inp_desc = modal_body.find("#desc");
+                    var inp_iscorporate = modal_body.find("#iscorporate");
+                    var inp_locked = modal_body.find("#islocked");
+
+                    inp_name.val(result.data.name);
+                    inp_email.val(result.data.email);
+                    inp_phone.val(result.data.phone);
+                    inp_desc.val(result.data.description);
+                    inp_iscorporate.prop('checked', result.data.isCorporate);
+                    inp_locked.prop('checked', result.data.locked);
+
+                    //amaç yazıların üst üstü binmesini engellemek
+                    if (inp_name.val() != null) inp_name.parent().addClass(" is-filled ");
+                    if (inp_email.val() != null) inp_email.parent().addClass(" is-filled ");
+                    if (inp_phone.val() != null) inp_phone.parent().addClass(" is-filled ");
+                    if (inp_desc.val() != null) inp_desc.parent().addClass(" is-filled ");
+                }
+            });
+        }
+
+        function setDeleteClientModal(clientid) {
+            $.ajax({
+                method: "get",
+                url: "/Customers/Details/" + clientid
+            }).done(function (result) {
+
+                if (result != null) {
+                    //değerleri çekeceğimiz modal body inin bilgilerini alıyoruz.
+                    var modal_body = $("#modal-delete-client .modal-body");
+
+                    var inp_name = modal_body.find("#name");
+                    var inp_email = modal_body.find("#email");
+                    var inp_phone = modal_body.find("#phone");
+                    var inp_desc = modal_body.find("#desc");
+                    var inp_iscorporate = modal_body.find("#iscorporate");
+                    var inp_locked = modal_body.find("#islocked");
+                    var inp_clientid = modal_body.find("#clientid");
+
+                    inp_name.val(result.data.name);
+                    inp_email.val(result.data.email);
+                    inp_phone.val(result.data.phone);
+                    inp_desc.val(result.data.description);
+                    inp_iscorporate.prop('checked', result.data.isCorporate);
+                    inp_locked.prop('checked', result.data.locked);
+                    inp_clientid.val(result.data.id);
+
+                    //amaç yazıların üst üstü binmesini engellemek
+                    if (inp_name.val() != null) inp_name.parent().addClass(" is-filled ");
+                    if (inp_email.val() != null) inp_email.parent().addClass(" is-filled ");
+                    if (inp_phone.val() != null) inp_phone.parent().addClass(" is-filled ");
+                    if (inp_desc.val() != null) inp_desc.parent().addClass(" is-filled ");
+                }
+            });
+        }
+
+        function deleteClient() {
+            var modal_body = $("#modal-delete-client .modal-body");
+            var fid = modal_body.find("#clientid").val();
+
+            $.ajax({
+                method: "post",
+                url: "/Customers/Delete/" + fid
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Silindi");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        }
+
+        $(function () {
+            $("#search").keyup(function (e) {
+                //console.log(e);
+                if (e.key == "Enter") {
+
+                    //console.log("search", $(this).val());
+                    var keyword = $(this).val();
+                    window.location = "/Customers/Index?search=" + encodeURI(keyword);
+                }
+            });
+        });
+    </script>
+}

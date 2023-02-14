@@ -1,0 +1,617 @@
+﻿@model List<SupperCRMApplication.Entities.User>
+
+@{
+    ViewData["Title"] = "Kullanıcılar";
+    ViewData["PageName"] = "users-index";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                    <h6 class="text-white text-capitalize ps-3">Kullanıcı Listesi</h6>
+                </div>
+            </div>
+            <div class="card-body px-0 pb-2">
+                <div class="px-3 d-flex justify-content-between">
+                    <div>
+                        <button class="btn btn-icon btn-3 btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#modal-create">
+                            <span class="fa fa-plus me-2"></span>
+                            <span>Yeni Kullanıcı</span>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="input-group input-group-sm input-group-outline @(ViewData["search"] != null ? "is-filled" : "")">
+                            <label class="form-label">Arama</label>
+                            <input id="search" type="text" class="form-control form-control-sm" value="@ViewData["search"]">
+                            @if (ViewData["search"] != null)
+                            {
+                                <span>
+                                    <a asp-action="Index" class="ms-3 text-sm text-danger">Temizle</a>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @if (ViewData["search"] != null)
+                {
+                    <div class="px-5">
+                        <p class="text-sm text-secondary font-weight-bold">
+                            Arama sonucunu görüntülüyorsunuz :   <span class="text-primary"> @ViewData["search"] </span>
+                        </p>
+                    </div>
+                }
+
+
+
+                <div class="table-responsive p-0">
+                    <table class="table align-items-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ad Soyad</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kullanıcı Adı</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ">E-posta</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rolü</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Durumu</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kayıt Tarihi</th>
+                                <th class="text-center text-secondary opacity-7"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @*Listeleme işlemi *@
+                            @if (Model == null || Model.Count == 0)
+                            {
+                                <tr>
+                                    <td class="text-center" colspan="6">
+                                        <span class="text-xs font-weight-bold mb-0">Herhangi bir kullanıcı verisi bulunamadı.</span>
+                                    </td>
+                                </tr>
+                            }
+
+                            @foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <span class="text-secondary text-xs font-weight-bold"> @user.Name</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="text-secondary text-xs font-weight-bold"> @user.Username</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="text-secondary text-xs font-weight-bold"> <a href="mailto:@user.Email" target="_blank">@user.Email</a> </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">@user.Role</span>
+                                    </td>
+                                    <td class="align-middle text-sm text-center">
+                                        <span class="badge bagde-sm bg-gradient-@(user.Locked ? "secondary":"success")">@(user.Locked ? "Pasif" : "Aktif") </span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">@user.CreatedAt</span>
+                                    </td>
+                                    <td class="align-middle text-center me-2">
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-edit" onclick="setEditModal(@user.Id)" class="text-info font-weight-bold text-xs me-2">
+                                            Düzenle
+                                        </a>
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-change-pass" onclick="setChangePassModal(@user.Id)" class="text-secondary font-weight-bold text-xs me-2">
+                                            Şifre Değiştir
+                                        </a>
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-change-username" onclick="setChangeUsernameModal(@user.Id,@user.Username)" class="text-danger font-weight-bold text-xs me-2 ">
+                                            Kullanıcı Adı Değiştir
+                                        </a>
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-details" onclick="setDetailsModal(@user.Id)" class="text-info font-weight-bold text-xs me-2">
+                                            Detay
+                                        </a>
+                                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#modal-delete" onclick="setDeleteModal(@user.Id)" class="text-info font-weight-bold text-xs me-2">
+                                            Sil
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-create" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Yeni Kullanıcı Oluştur</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    @*  Kullanıcı Create modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel())"></partial>
+                    <div class="input-group input-group-outline my-3">
+                        <label class="form-label">Kullanıcı Adı</label>
+                        <input id="username" type="text" class="form-control" />
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                        <label class="form-label">Şifre</label>
+                        <input id="password" type="password" class="form-control" />
+                    </div>
+                    <div class="input-group input-group-outline my-3">
+                        <label class="form-label">Şifre(Tekrar)</label>
+                        <input id="repassword" type="password" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-primary" onclick="create()">Kaydet</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Kullanıcı Güncelleme</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*  Müşteri Edit modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel{HasId = true})"></partial>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-warning" onclick="update()">Güncelle</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-details" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Kullanıcı Detayları</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*  Müşteri Detay modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel{IsReadonly=true})"></partial>
+                    <div class="input-group input-group-outline my-3">
+                        <label class="form-label">Kullanıcı Adı</label>
+                        <input id="username" type="text" class="form-control" readonly />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Kullanıcı Sil</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    @*  Müşteri Delete modeli Refaktoring işlemi *@
+                    <partial name="_ModalInputs" model="@(new ModalInputViewModel{IsReadonly=true, HasId=true, Description="Aşağıdaki kullanıcı kaydını silmek istediğinize emin misiniz ? "})"></partial>
+                    <div class="input-group input-group-outline my-3">
+                        <label class="form-label">Kullanıcı Adı</label>
+                        <input id="username" type="text" class="form-control" readonly />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-danger" onclick="destroy()">Sil (Geri Alınamaz!)</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*hidden user id görmüyor*@
+    <div class="modal fade" id="modal-change-pass" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Kullanıcı Şifre Değitir</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="input-group input-group-outline my-3">
+                            <label class="form-label">Şifre</label>
+                            <input id="password" type="password" class="form-control" />
+                        </div>
+                        <div class="input-group input-group-outline my-3">
+                            <label class="form-label">Şifre(Tekrar)</label>
+                            <input id="repassword" type="password" class="form-control" />
+                        </div>
+                        <input type="hidden" id="userid" value="" />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-danger" onclick="updatePass()">Güncelle</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*hidden user id görmüyor*@
+    <div class="modal fade" id="modal-change-username" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title font-weight-normal" id="modal-title-default">Kullanıcı Adı Değiştir</h6>
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="input-group input-group-outline my-3">
+                            <label class="form-label">Kullanıcı Adı</label>
+                            <input id="username" type="text" class="form-control" />
+                        </div>
+                        <input type="hidden" id="userid" value="" />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-gradient-danger" onclick="updateUsername()">Güncelle</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts{
+    <script>
+        function create() {
+            var modal_body = $("#modal-create .modal-body");
+            var fname = modal_body.find("#name").val();
+            var femail = modal_body.find("#email").val();
+            var fusername = modal_body.find("#username").val();
+            var frole = modal_body.find("#role").val();
+            var fpassword = modal_body.find("#password").val();
+            var frepassword = modal_body.find("#repassword").val();
+            var flocked = modal_body.find("#islocked").is(":checked");
+
+            var data = {
+                "name": fname,
+                "email": femail,
+                "username": fusername,
+                "role": frole,
+                "password": fpassword,
+                "repassword": frepassword,
+                "locked": flocked
+            };
+
+            $.ajax({
+                method: "post",
+                url: "/Users/Create",
+                data: data,
+                beforeSend: function () {
+                    modal_body.filter(".is-invalid").removeClass("invalid");
+                }
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Yeni Kulanıcı Kaydı");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1200);
+                }
+            });
+        }
+        function setEditModal(userid) {
+            $.ajax({
+                method: "get",
+                url: "/Users/Edit/" + userid
+            }).done(function (result) {
+
+                if (result != null) {
+                    //değerleri çekeceğimiz modal body inin bilgilerini alıyoruz.
+                    var modal_body = $("#modal-edit .modal-body");
+
+                    var inp_name = modal_body.find("#name");
+                    var inp_email = modal_body.find("#email");
+                    var inp_phone = modal_body.find("#phone");
+                    var inp_desc = modal_body.find("#desc");
+                    var inp_iscorporate = modal_body.find("#iscorporate");
+                    var inp_locked = modal_body.find("#islocked");
+                    var inp_clientid = modal_body.find("#user");
+
+                    inp_name.val(result.data.name);
+                    inp_email.val(result.data.email);
+                    inp_phone.val(result.data.phone);
+                    inp_desc.val(result.data.description);
+                    inp_iscorporate.prop('checked', result.data.isCorporate);
+                    inp_locked.prop('checked', result.data.locked);
+                    inp_clientid.val(result.data.id);
+
+                    //amaç yazıların üst üstü binmesini engellemek
+                    if (inp_name.val() != null) inp_name.parent().addClass(" is-filled ");
+                    if (inp_email.val() != null) inp_email.parent().addClass(" is-filled ");
+                    if (inp_phone.val() != null) inp_phone.parent().addClass(" is-filled ");
+                    if (inp_desc.val() != null) inp_desc.parent().addClass(" is-filled ");
+                }
+            });
+        }
+        function update() {
+            var modal_body = $("#modal-edit .modal-body");
+            var fname = modal_body.find("#name").val();
+            var femail = modal_body.find("#email").val();
+            //var fusername = modal_body.find("#username").val();
+            var frole = modal_body.find("#role").val();
+            var flocked = modal_body.find("#islocked").is(":checked");
+            var fid = modal_body.find("#userid").val();
+
+            var data = {
+                "name": fname,
+                "email": femail,
+                "role": frole,
+                "locked": flocked
+            };
+            console.log(fid);
+            $.ajax({
+                method: "post",
+                url: "/Users/Edit/" + fid,
+                data: data,
+                beforeSend: function () {
+                    modal_body.filter(".is-invalid").removeClass("is-invalid");
+                }
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Güncellendi");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        }
+
+        function setDetailsModal(userid) {
+            $.ajax({
+                method: "get",
+                url: "/Users/Details/" + userid
+            }).done(function (result) {
+
+                if (result != null) {
+                    //değerleri çekeceğimiz modal body inin bilgilerini alıyoruz.
+                    var modal_body = $("#modal-details .modal-body");
+
+                    var inp_name = modal_body.find("#name");
+                    var inp_email = modal_body.find("#email");
+                    var inp_role = modal_body.find("#role");
+                    var inp_username = modal_body.find("#username");
+                    var inp_userid = modal_body.find("#userid");
+
+                    inp_name.val(result.data.name);
+                    inp_email.val(result.data.email);
+                    inp_role.val(result.data.role);
+                    inp_username.val(result.data.username);
+                    inp_userid.val(result.data.id);
+
+                    //amaç yazıların üst üstü binmesini engellemek
+                    if (inp_name.val() != null) inp_name.parent().addClass(" is-filled ");
+                    if (inp_email.val() != null) inp_email.parent().addClass(" is-filled ");
+                    if (inp_role.val() != null) inp_role.parent().addClass(" is-filled ");
+                    if (inp_username.val() != null) inp_username.parent().addClass(" is-filled ");
+                }
+            });
+        }
+        function setDeleteModal(userid) {
+            $.ajax({
+                method: "get",
+                url: "/Users/Details/" + userid
+            }).done(function (result) {
+
+                if (result != null) {
+                    //değerleri çekeceğimiz modal body inin bilgilerini alıyoruz.
+                    var modal_body = $("#modal-delete .modal-body");
+
+                    var inp_name = modal_body.find("#name");
+                    var inp_email = modal_body.find("#email");
+                    var inp_role = modal_body.find("#role");
+                    var inp_username = modal_body.find("#username");
+                    var inp_userid = modal_body.find("#userid");
+
+                    inp_name.val(result.data.name);
+                    inp_email.val(result.data.email);
+                    inp_role.val(result.data.role);
+                    inp_username.val(result.data.username);
+                    inp_userid.val(result.data.id);
+
+                    //amaç yazıların üst üstü binmesini engellemek
+                    if (inp_name.val() != null) inp_name.parent().addClass(" is-filled ");
+                    if (inp_email.val() != null) inp_email.parent().addClass(" is-filled ");
+                    if (inp_role.val() != null) inp_role.parent().addClass(" is-filled ");
+                    if (inp_username.val() != null) inp_username.parent().addClass(" is-filled ");
+                }
+            });
+        }
+        function destroy() {
+            var modal_body = $("#modal-delete .modal-body");
+            var fid = modal_body.find("#userid").val();
+            console.log(fid);
+            $.ajax({
+                method: "post",
+                url: "/Users/Delete/" + fid
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Silindi");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        }
+        function setChangePassModal(userid) {
+
+        }
+        function setChangeUsernameModal(userid, username) {
+            //verileri çekiyoruz.
+            var modal_body = $("#modal-change-username .modal-body");
+
+            var fusername = modal_body.find("#username").val();
+            var fid = modal_body.find("#userid").val();
+
+            console.log(fusername + "     " + fid);
+            var data = {
+                "username": fusername
+            };
+
+            $.ajax({
+                method: "post",
+                url: "/Users/ChangeUsername/" + fid,
+                data: data,
+                beforeSend: function () {
+                    modal_body.filter(".is-invalid").removeClass("is-invalid");
+                }
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Güncellendi");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        }
+        function updatePass() {
+            var modal_body = $("#modal-change-pass .modal-body");
+            var fpassword = modal_body.find("#password").val();
+            var frepassword = modal_body.find("#repassword").val();
+            var fid = modal_body.find("#userid").val();
+
+            console.log(fid);
+            var data = {
+                "password": fpassword,
+                "repassword": frepassword
+            };
+
+            $.ajax({
+                method: "post",
+                url: "/Users/ChangePassword/" + fid,
+                data: data,
+                beforeSend: function () {
+                    modal_body.filter(".is-invalid").removeClass("is-invalid");
+                }
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Güncellendi");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        }
+        function updateUsername() {
+            //verileri çekiyoruz.
+            var modal_body = $("#modal-change-username .modal-body");
+            var fusername = modal_body.find("#username").val();
+            var fid = modal_body.find("#userid").val();
+
+            //bir model luşturuyoruz.
+            var data = {
+                "username": fusername
+            };
+            //modeli ajax ile POST atıyoruz.
+            $.ajax({
+                method: "post",
+                url: "/Users/ChangeUsername/" + fid,
+                data: data,
+                beforeSend: function () {
+                    modal_body.filter(".is-invalid").removeClass("is-invalid");
+                }
+            }).done(function (result) {
+                if (result.error == true) {
+                    for (var i in result.errors) {
+                        var err = result.errors[i];
+                        console.log(err);
+                        modal_body.find("#" + err.key.toLowerCase()).parent().addClass(" is-invalid ");
+                        toastr.error(err.value, "Hata");
+                    }
+                } else {
+                    //başarı mesajı göster ve modal kapat
+                    toastr.success(result.success, "Güncellendi");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        }
+
+        //search
+        $(function () {
+            $("#search").keyup(function (e) {
+                //console.log(e);
+                if (e.key == "Enter") {
+                    //console.log("search", $(this).val());
+                    var keyword = $(this).val();
+                    window.location = "/Users/Index?search=" + encodeURI(keyword);
+                }
+            });
+        });
+    </script>
+}

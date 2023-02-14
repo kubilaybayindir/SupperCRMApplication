@@ -1,18 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Remove="bundleconfig.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="bundleconfig.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
@@ -28,8 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SupperCRMApplication.Models\SupperCRMApplication.Models.csproj" />
-    <ProjectReference Include="..\SupperCRMApplication.Services\SupperCRMApplication.Services.csproj" />
+    <ProjectReference Include="..\SupperCRMApplication.Entities\SupperCRMApplication.Entities.csproj" />
   </ItemGroup>
 
 </Project>
