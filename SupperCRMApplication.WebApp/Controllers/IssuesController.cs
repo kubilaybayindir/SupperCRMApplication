@@ -11,11 +11,13 @@ namespace SupperCRMApplication.WebApp.Controllers
     {
         private readonly IIssueService _issueService;
         private readonly IUserService _userService;
+        private readonly INotifyService _notifierService;
 
-        public IssuesController(IIssueService issueService, IUserService userService)
+        public IssuesController(IIssueService issueService, IUserService userService, INotifyService notifierService)
         {
             _issueService = issueService;
             _userService = userService;
+            _notifierService = notifierService;
         }
 
         // GET: GetUserList
@@ -99,6 +101,7 @@ namespace SupperCRMApplication.WebApp.Controllers
                 var issue = _issueService.Create(model);
 
                 //todo: burada görev eklendiği için kullanıcıya bildirim eklenmeli.
+                _notifierService.Create("Yeni Görev Atandı.", NotifyType.IssueAdded, model.UserId);
 
                 response.Success = "Görev Eklendi.";
                 return Json(response);
@@ -127,6 +130,17 @@ namespace SupperCRMApplication.WebApp.Controllers
                 var issue = _issueService.Update(id, model);
 
                 //todo : burada görev güncellendi için kullanıcıya bildirim eklenmeli
+
+                if (model.Completed)
+                {
+                    _notifierService.Create(" Görev tamamlandı.", NotifyType.IssueCompleted, model.UserId);
+                }
+                else
+                {
+                    _notifierService.Create(" Görev güncellendi.", NotifyType.IssueChanged, model.UserId);
+                }
+
+                
 
                 response.Success = "Görev Güncellendi.";
                 return Json(response);

@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SupperCRMApplication.Entities\SupperCRMApplication.Entities.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -26,17 +26,37 @@ namespace SupperCRMApplication.WebApp
                 opts.IdleTimeout = TimeSpan.FromMinutes(20);
             });
 
-            //Dependency Injection
+            //Dependency Injection of Clients
             builder.Services.AddScoped<IClientRepository, ClientRepository>();
             builder.Services.AddScoped<IClientService, ClientService>();
-
-            //Dependency Injection
+             
+            //Dependency Injection of Users
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
 
-            //Dependency Injection
+            //Dependency Injection of Issues
             builder.Services.AddScoped<IIssueRepository, IssueRepository>();
             builder.Services.AddScoped<IIssueService, IssueService>();
+
+            //Dependency Injection of Issues
+            builder.Services.AddScoped<INotifyRepository, NotifyRepository>();
+            builder.Services.AddScoped<INotifyService, NotifyService>();
+
+            //Dependency Injection of Logs
+            builder.Services.AddScoped<ILogRepository, LogRepository>();
+            builder.Services.AddScoped<ILogService, LogService>();
+
+            //Dependency Injection of Leads
+            builder.Services.AddScoped<ILeadRepository, LeadRepository>();
+            builder.Services.AddScoped<ILeadService, LeadService>();
+
+            //Dependency Injection of Mock(Fake Data)
+            builder.Services.AddScoped<IMockRepository, MockRepository>();
+            builder.Services.AddScoped<IMockService, MockService>();
+
+            //Dependency Injection of Dashboard
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SupperCRMApplication.Common;
 using SupperCRMApplication.Entities;
 using SupperCRMApplication.Models;
 using SupperCRMApplication.Services;
+using SupperCRMApplication.WebApp.Filters;
 
 namespace SupperCRMApplication.WebApp.Controllers
 {
+    [Auth(Roles =Constants.Role_Admin)] //rol kontrolü yapacark ve role özelliğine sadece admin girebilir.
     public class UsersController:ControllerBase
     {
         private readonly IUserService _userService;

@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using SupperCRMApplication.Entities;
 using SupperCRMApplication.Models;
 using SupperCRMApplication.Services;
+using SupperCRMApplication.WebApp.Filters;
 
 namespace SupperCRMApplication.WebApp.Controllers
 {
+    [Auth]
     public class CustomersController : ControllerBase
     {
 
